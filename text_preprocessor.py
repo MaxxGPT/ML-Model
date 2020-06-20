@@ -45,7 +45,7 @@ class Preprocessor():
         if(self.counter==6):
             total_records=self.db.get_table_count(self.table_name)
             self.logger.info("Total Table Size..."+str(total_records))
-            total_records=100
+            #total_records=100
             table_data=self.db.get_data(self.table_name,0,total_records)
             dataset=[]
             self.logger.info("Data Processing Started...")

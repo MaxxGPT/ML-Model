@@ -92,7 +92,7 @@ class TextAnalyser:
             self.logger.info("Total Table Size..."+str(total_records))
             last_processed_row=self.getlastprocessed_record()
             self.logger.info("Last processed..."+str(last_processed_row))
-            total_records=100
+            #total_records=100
             table_data=self.db.get_data(self.preprocessor.table_name,last_processed_row,total_records)
             dataset=[]
             self.logger.info("Topic Prediction Started...")
@@ -168,7 +168,7 @@ class TextAnalyser:
             table_data=self.db.get_data(topic_table_name,0,total_records)
             for row in table_data:
                 try:
-                    self.topics.append(row["Topic "])
+                    self.topics.append(row["Topic"])
                     self.topics_keywords.append(row["Tokens"])
                 except Exception as e:
                     self.logger.error(e)
