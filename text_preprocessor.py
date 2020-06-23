@@ -12,6 +12,7 @@ from config import config
 import pickle
 from progress.bar import Bar
 from db import Database
+import os
 
 class Preprocessor():
 
@@ -28,27 +29,34 @@ class Preprocessor():
             self.stop_words = set(stopwords.words('english'))
             self.counter+=1
             self.logger.info("Preprocessing Started ...")
-            self.table_name=(config.get('DATABASE', 'TABLE'))
+            print("Preprocessing Started ...")
+            self.table_name=os.environ['SOURCE_TABLE']
+            print(self.table_name)
             self.counter+=1
             self.db=Database()
             self.counter+=1
             if(self.db.status()):
                 self.logger.info("DB Connection Successful...")
+                print("DB Connection Successful...")
                 self.counter+=1
                 self.db_connection=True
             else:
                 self.logger.info("DB Connection Failed...")
+                print("DB Connection Failed...")
         except Exception as e:
             self.logger.error(e)
+            print(e)
 
     def process_data(self):
         if(self.counter==6):
             total_records=self.db.get_table_count(self.table_name)
             self.logger.info("Total Table Size..."+str(total_records))
+            print("Total Table Size..."+str(total_records))
             #total_records=100
             table_data=self.db.get_data(self.table_name,0,total_records)
             dataset=[]
             self.logger.info("Data Processing Started...")
+            print("Data Processing Started...")
             bar = Bar('Processing', max=total_records)
             for row in table_data:
                 try:
@@ -62,7 +70,9 @@ class Preprocessor():
                 bar.next()
             bar.finish()
             self.logger.info("Data Processing Finished...")
+            print("Data Processing Finished...")
             self.logger.info("Processed Data Size "+str(len(dataset)))
+            print("Processed Data Size "+str(len(dataset)))
             filename = 'model/preprocessed_data.pkl'
             pickle.dump(dataset, open(filename, 'wb'))
         else:

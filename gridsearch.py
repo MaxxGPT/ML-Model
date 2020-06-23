@@ -16,6 +16,7 @@ class GridSearch:
         self.search_components=[2, 3, 4]
         self.logger=self.init_logger()
         self.logger.info("init...")
+        print("Grid Search init....")
     
     def init_logger(self):
         logger = logging.getLogger('GridSearch')
@@ -24,6 +25,7 @@ class GridSearch:
 
     def start(self):   
         self.logger.info("Started...")
+        print("Grid Search Started....")
         no_topics=4
         t = time.process_time()
         try:
@@ -40,9 +42,13 @@ class GridSearch:
             # Model Parameters
             self.logger.info("Completed...")
             self.logger.info(model.best_params_)
+            print("Grid Search Completed....")
             no_topics=model.best_params_["n_components"]
         except Exception as e:
             self.logger.error(e)
+            print(e)
         elapsed_time = time.process_time() - t
         self.logger.info("Execution Time[Seconds] "+str(elapsed_time))
+        print("Execution Time[Seconds] "+str(elapsed_time))
+
         return no_topics

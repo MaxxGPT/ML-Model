@@ -19,6 +19,7 @@ import en_core_web_sm
 
 import pandas as pd
 import numpy as np
+import os
 
 class TextAnalyser:
 
@@ -29,6 +30,7 @@ class TextAnalyser:
             self.logger=self.initLogger()
             self.data_chunk_size=10000
             self.logger.info("Topic Prediction Module init...")
+            print("Topic Prediction Module init...")
 
             self.summary_table_name="prediction_summary"
         
@@ -41,21 +43,25 @@ class TextAnalyser:
             self.tf_vectorizer=pickle.load(open(filename, 'rb'))
 
             self.logger.info("Topic Vectorizer Model loaded...")
+            print("Topic Vectorizer Model loaded...")
 
             filename = 'model/lda_model.pkl'
             self.lda=pickle.load(open(filename, 'rb'))
             self.logger.info("LDA Model loaded...")
+            print("LDA Model loaded...")
 
             self.model_loaded=True
 
             self.preprocessor=Preprocessor()
             self.db=self.preprocessor.db
             self.logger.info("DB Connected...")
+            print("DB Connected...")
 
             self.nlp = en_core_web_sm.load()
             self.logger.info("NER Module Started...")
+            print("NER Module Started...")
 
-            self.entities=(config.get('NER', 'ENTITIES'))
+            self.entities=os.environ['NER_ENTITIES']
             self.topics=[]
             self.topics_keywords=[]
 
@@ -76,6 +82,7 @@ class TextAnalyser:
         try:
             total_records=self.db.get_table_count(self.summary_table_name)
             self.logger.info("Summary Table Size..."+str(total_records))
+            print("Summary Table Size..."+str(total_records))
             skip_count=0
             if(total_records>0):
                 skip_count=total_records-1
@@ -90,12 +97,15 @@ class TextAnalyser:
         if(self.model_loaded):
             total_records=self.db.get_table_count(self.preprocessor.table_name)
             self.logger.info("Total Table Size..."+str(total_records))
+            print("Total Table Size..."+str(total_records))
             last_processed_row=self.getlastprocessed_record()
             self.logger.info("Last processed..."+str(last_processed_row))
+            print("Last processed..."+str(last_processed_row))
             #total_records=100
             table_data=self.db.get_data(self.preprocessor.table_name,last_processed_row,total_records)
             dataset=[]
             self.logger.info("Topic Prediction Started...")
+            print("Topic Prediction Started...")
             bar = Bar('Processing', max=total_records)
             for row in table_data:
                 try:
@@ -117,12 +127,14 @@ class TextAnalyser:
                 bar.next()
             bar.finish()
             self.logger.info("Data Processing Finished...")
+            print("Data Processing Finished...")
             try:
                 summary={"Last_date":datetime.datetime.now(),"last_processed_record":total_records}
                 data_rows=[]
                 data_rows.append(summary)
                 self.db.save_data(self.summary_table_name,data_rows,False)
                 self.logger.info("Summary Updated...")
+                print("Summary Updated...")
             except Exception as e:
                 self.logger.error(e)
         else:
@@ -142,6 +154,7 @@ class TextAnalyser:
             topic_contribution=np.round(topic_probability_scores[0:,np.argmax(topic_probability_scores)][0],2)
         except Exception as e:
             self.logger.error(e)
+            print(e)
         return topic,topic_contribution,topic_keywords
 
     def extract_entities(self,processed_text):
@@ -157,6 +170,7 @@ class TextAnalyser:
                         entity_dict[X.label_].append(X.text)
         except Exception as e:
             self.logger.error(e)
+            print(e)
         return entity_dict
 
     # Create Topic Array
@@ -165,6 +179,7 @@ class TextAnalyser:
         try:
             total_records=self.db.get_table_count(topic_table_name)
             self.logger.info("Total Table Size..."+str(total_records))
+            print("Total Table Size..."+str(total_records))
             table_data=self.db.get_data(topic_table_name,0,total_records)
             for row in table_data:
                 try:
@@ -172,6 +187,8 @@ class TextAnalyser:
                     self.topics_keywords.append(row["Tokens"])
                 except Exception as e:
                     self.logger.error(e)
+                    print(e)
         except Exception as e:
             self.logger.error(e)
+            print(e)
         

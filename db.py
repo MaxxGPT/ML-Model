@@ -4,16 +4,19 @@ from config import config
 import logging
 import logging.handlers as handlers
 import time
+import os
 
 class Database:
     def __init__(self):
-        self.db_username=(config.get('DATABASE', 'USERNAME'))
-        self.db_password=(config.get('DATABASE', 'PASSWORD'))
-        self.db_host=(config.get('DATABASE', 'HOST'))
-        self.db_port=(config.get('DATABASE', 'PORT'))
-        self.db_name=(config.get('DATABASE', 'DB'))
+        self.db_username = os.environ['DB_USERNAME']
+        self.db_password = os.environ['DB_PASSWORD']
+        self.db_host = os.environ['DB_HOST']
+        self.db_port = os.environ['DB_PORT']
+        self.db_name = os.environ['DB_NAME']
+
         self.logger=self.init_logger()
         self.logger.info("DB Connection init...")
+        print("DB Connection init...")
         self.client=self.connect()
     
     def status(self):
@@ -28,7 +31,7 @@ class Database:
         return logger
 
     def connect(self):
-        if(self.db_username!=""):
+        if(self.db_username!="NA"):
             client = MongoClient(self.db_host+":"+self.db_port, username=self.db_username,password=self.db_password)
         else:
             client = MongoClient(self.db_host+":"+self.db_port)

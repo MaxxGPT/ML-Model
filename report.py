@@ -1,7 +1,7 @@
 from topic_analyser import TopicAnalyser
 
 if __name__ == "__main__":
-    print("Topic Analyser Started....")
+    print("Report Generation Started....")
     topic_analyser=TopicAnalyser()
     topic_analyser.generate()
-    print("Topic Analyser Completed....")
+    print("Report Generation Completed....")

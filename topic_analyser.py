@@ -35,10 +35,12 @@ class TopicAnalyser:
             self.count+=1
 
             self.logger.info("Topic Vectorizer Model loaded...")
+            print("Topic Vectorizer Model loaded...")
 
             filename = 'model/lda_model.pkl'
             self.lda=pickle.load(open(filename, 'rb'))
             self.logger.info("LDA Model loaded...")
+            print("LDA Model loaded...")
 
             self.count+=1
         except Exception as e:
@@ -53,13 +55,17 @@ class TopicAnalyser:
     def generate(self):
         if(self.count==3):
             self.logger.info("Topic Visualisation Started...") 
+            print("Topic Visualisation Started...") 
             try:
                 output=pyLDAvis.sklearn.prepare(self.lda, self.tf, self.tf_vectorizer, mds='tsne')
                 pyLDAvis.save_html(output, 'report/topic_output.html')
                 self.logger.info("HTML output saved")
+                print("HTML output saved")
             except Exception as e:
                 self.logger.error(e)
+                print(e)
             self.logger.info("Topic Visualisation Completed...") 
+            print("Topic Visualisation Completed...")
         else:
             print("ML Models missing!!! Please run the training module.")
             self.logger.info("ML Models missing!!! Please run the training module.") 
