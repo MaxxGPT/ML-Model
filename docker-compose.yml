@@ -1,0 +1,34 @@
+version: "3.7"
+services:
+  mlservice:
+    image: mlservice
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DB_USERNAME: NA
+      DB_PASSWORD: NA
+      DB_HOST: "mongodb"
+      DB_PORT: 27017
+      DB_NAME: NewsAPI
+      SOURCE_TABLE: Articles
+      NER_ENTITIES: ORG,GPE,PERSON 
+      LDA_FEATURES: 5000
+      LDA_NO_TOP_WORDS: 50
+    links:
+      - mongodb
+  mongodb:
+    image: mongo
+    volumes:
+      # # seeding scripts
+      # - ./entry:/docker-entrypoint-initdb.d
+      # # named volumes
+      - mongodb:/data/db
+      - mongoconfig:/data/configdb
+    ports:
+    - "27017:27017"
+volumes:
+  # default dir on Ubuntu: /var/lib/docker/volumes
+  mongodb:
+  mongoconfig:   
+
