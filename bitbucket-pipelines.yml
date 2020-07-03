@@ -1,0 +1,31 @@
+# This is a sample build configuration for Other.
+# Check our guides at https://confluence.atlassian.com/x/5Q4SMw for more examples.
+# Only use spaces to indent your .yml configuration.
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment.
+image:
+  name: atlassian/default-image:2
+
+pipelines:
+  branches:
+    dev: #check commits message contains "#manualrun !"
+        - step:
+            name: Get commit message
+            script:
+              - chmod +x ./scripts/*
+              - ./scripts/deploy.sh
+
+        - step:
+            name: send sqs message
+            script:
+              - apt-get update && apt-get install -y jq
+              - curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
+              - unzip awscli-bundle.zip
+              - ./awscli-bundle/install -b ~/bin/aws
+              - export PATH=~/bin:$PATH
+              - export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+              - export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+              - export AWS_DEFAULT_REGION=$AWS_REGION
+              - chmod +x ./scripts/*
+              - ./scripts/sendsqsreq.sh
+

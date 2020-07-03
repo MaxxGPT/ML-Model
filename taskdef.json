@@ -1,0 +1,79 @@
+{
+    "family": "ML_TASKDEF_NAME",
+    "volumes": [
+      {
+        "name": "model-data",
+        "dockerVolumeConfiguration": {
+          "autoprovision": true,
+          "scope": "shared",
+          "driver": "rexray/ebs",
+          "driverOpts": {
+            "volumetype": "gp2",
+            "size": "10"
+          }
+        }
+      }
+    ],
+    "containerDefinitions": [
+        {
+            "name": "ML_TASKDEF_NAME",
+            "image": "IMAGE_NAME",
+            "memory": 1024,
+            "cpu": 0,
+            "mountPoints": [
+              {
+                "containerPath": "/usr/src/app/model",
+                "sourceVolume": "model-data"
+              }
+            ],
+            "essential": true,
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/ML_TASKDEF_NAME",
+                    "awslogs-region": "AWS_DEFAULT_REGION",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "environment": [
+                {
+                    "name": "DB_HOST",
+                    "value": "ENV_DB_HOST"
+                },
+                {
+                    "name": "DB_NAME",
+                    "value": "ENV_DB_NAME"
+                },
+                {
+                    "name": "DB_PASSWORD",
+                    "value": "ENV_DB_PASSWORD"
+                },
+                {
+                    "name": "DB_PORT",
+                    "value": "ENV_DB_PORT"
+                },
+                {
+                    "name": "DB_USERNAME",
+                    "value": "ENV_DB_USERNAME"
+                },
+                {
+                    "name": "LDA_FEATURES",
+                    "value": "ENV_LDA_FEATURES"
+                },
+                {
+                    "name": "LDA_NO_TOP_WORDS",
+                    "value": "ENV_LDA_NO_TOP_WORDS"
+                },
+                {
+                    "name": "NER_ENTITIES",
+                    "value": "ENV_NER_ENTITIES"
+                },
+                {
+                    "name": "SOURCE_TABLE",
+                    "value": "ENV_SOURCE_TABLE"
+                }
+            ]
+        }
+    ]
+
+}
