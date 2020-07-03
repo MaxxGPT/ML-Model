@@ -4,10 +4,8 @@ pipeline {
     			BRANCH_DEPLOY = "${env.BRANCH_NAME}"
     			ENVAWSACCOUNTID = "${BRANCH_DEPLOY}-AWS_ACCOUNT_ID"
     			ENVAWSREGISTRYURL = "${BRANCH_DEPLOY}-AWS_REGISTRY_URL"
-    			// ENV_CLUSTER_NAME = "ml-${BRANCH_DEPLOY}"
-    			// ML_TASKDEF_NAME = "ml-${BRANCH_DEPLOY}"
-    			ENV_CLUSTER_NAME = "ml-dev"
-    			ML_TASKDEF_NAME = "ml-dev"
+    			ENV_CLUSTER_NAME = "ml-${BRANCH_DEPLOY}"
+    			ML_TASKDEF_NAME = "ml-${BRANCH_DEPLOY}"
     			DEV_COMMIT_MSG = "#manualrun"
 			    ENV_DB_USERNAME = "${BRANCH_DEPLOY}-DB_USERNAME"
 			    ENV_DB_PASSWORD = "${BRANCH_DEPLOY}-DB_PASSWORD"
@@ -20,24 +18,24 @@ pipeline {
 			    ENV_LDA_NO_TOP_WORDS = "${BRANCH_DEPLOY}-LDA_NO_TOP_WORDS"
     			}
 		  	stages {
-		        // stage('Check') {
-		        // 		when {
-			       //      	branch 'dev' 
-			       //  	}
-		        //     steps {
+		        stage('Check') {
+		        		when {
+			            	branch 'dev' 
+			        	}
+		            steps {
 
-		        //         script {
-		        //             commitMsg = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
-		        //             if (!(commitMsg.contains(DEV_COMMIT_MSG))) {
-		        //                     env.SKIP_BUILD = 'yes'
-		        //                     error('no manual run skipping!')
-		        //             }
-		        //         }
-		        //     }
-		        // }
+		                script {
+		                    commitMsg = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
+		                    if (!(commitMsg.contains(DEV_COMMIT_MSG))) {
+		                            env.SKIP_BUILD = 'yes'
+		                            error('no manual run skipping!')
+		                    }
+		                }
+		            }
+		        }
 		    	stage('build docker image') {
 		    		when {
-		            	anyOf { branch 'devops'; branch 'dev'; branch 'stage'; branch 'prod'; } 
+		            	anyOf { branch 'dev'; branch 'stage'; branch 'prod'; } 
 		        	}
 		      	steps {
 		   	 		script {
@@ -58,7 +56,7 @@ pipeline {
 				}
 				stage('publish docker image'){
 					when {
-		            	anyOf { branch 'devops'; branch 'dev'; branch 'stage'; branch 'prod'; } 
+		            	anyOf { branch 'dev'; branch 'stage'; branch 'prod'; } 
 		        	}
 					steps {
 						script {
@@ -85,7 +83,7 @@ pipeline {
 				}
 				stage('ECS RUN DEV'){
 					when {
-		            	anyOf { branch 'devops'; branch 'dev'; } 
+		            	anyOf { branch 'dev'; } 
 		        	}
 					steps {
 						script {
@@ -132,6 +130,16 @@ pipeline {
     								echo "exit: No task definition"
     								exit;
 								fi
+
+								QUEUE_URL="https://sqs.${AWS_DEFAULT_REGION}.amazonaws.com/${AWS_ACCOUNT_ID}/ml-startecsinstances"
+								aws sqs send-message --queue-url ${QUEUE_URL} --message-body "jenkins ml dev manualrun trigger" --region ${AWS_DEFAULT_REGION}
+								ContainerInstancesCount=$(aws ecs describe-clusters --region ${AWS_DEFAULT_REGION} --cluster $ENV_CLUSTER_NAME | jq .clusters[].registeredContainerInstancesCount)
+								while [ $ContainerInstancesCount != 1 ]; do
+									echo " checking container instance count"
+									ContainerInstancesCount=$(aws ecs describe-clusters --region ${AWS_DEFAULT_REGION} --cluster $ENV_CLUSTER_NAME | jq .clusters[].registeredContainerInstancesCount)
+								done
+								aws ecs run-task --cluster $ENV_CLUSTER_NAME --task-definition $ML_TASKDEF_NAME:$TASK_VERSION --count 1 --region=${AWS_DEFAULT_REGION}
+								echo "Task started check cloudwatch!!!"
 
 							'''	
 							}
