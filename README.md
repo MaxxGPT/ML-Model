@@ -9,17 +9,17 @@ This Feature is divided into three modules . Training,Visualisation and Predicti
 Core part of the application .It will pull entire table data from Mongodb for training the model.It will take some time based on the number of records in the 
 articles table. But this is a one time job. No need to run this module unless there is a massive change in the table size . Everytime this module will take 
 entire table data for training so use it effectively.
-Steps included in the trainig model.
+Steps included in the training model.
 
-    * Text Preprocessing (Stop Words Removal,Lemmatization) *
-    * Document-Word matrix Creation (CountVectorizer)	*
+    * Text Preprocessing (Stop Words Removal,Lemmatization) 
+    * Document-Word matrix Creation (CountVectorizer)	
     * Grid Search *
     * LDA *
 	
 This is a one time job. After successful execution of this module we can see 4 files in models folder and extracted topics in the Topics table . In this mongodb 
 table we can edit the Topic name .Please do not make any changes in the Tokens column.
-lda_model.pkl file is the main module for extracting topics. All other files are intermediate outputs we can use it if required .For ex if you need preprocessed
-row data take preprocessed_data.pkl and load it using pickles library. Document-Word matrix is also avalible in tf_model.pkl file. All training details will be
+lda_model.pkl file is the main module for extracting topics. All other files are intermediate outputs and we can use it if required .For ex if you need preprocessed
+row data take preprocessed_data.pkl and load it using pickles library. Document-Word matrix is also avalible in tf_model.pkl file. All training execution details will be
 avalible in train_summary table.
 
 ### python train.py ###
@@ -35,11 +35,13 @@ After every successful training we need to run this module for checking the oupu
 
 This module scans each record in the article table and find the associated Topic,Topic contribution percentage and NER attributes and save back to the same table
 as seperate columns.First time it will take some time for processing the entire dataset. Then it will take only latest records . Last processed record and date 
-saved in sepearte table called prediction_summary.
+saved in a sepearte table called prediction_summary.
 
 ### python predict.py ###
 
 # Configuration #
+
+All configuration variables should be system variables.
 
 ## Database ##
 	DB_USERNAME:
@@ -77,11 +79,16 @@ saved in sepearte table called prediction_summary.
 # Dependencies #
 
 	* Python (>= 3.7)
+	* scikit-learn (>=0.23.1)
 	* All required libraries included in the requirements.txt file. 
 	
 # Testing #
 	
-	Run test_modules.py for testing the MongoDB connectivity. 
+	Run test_modules.py for testing the MongoDB connectivity.   
+	
+# Deployment instructions #
+	
+	All required steps included in the deployment_instructions.doc file.
 	
 
 
