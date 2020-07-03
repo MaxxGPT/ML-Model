@@ -9,11 +9,13 @@ This Feature is divided into three modules . Training,Visualisation and Predicti
 Core part of the application .It will pull entire table data from Mongodb for training the model.It will take some time based on the number of records in the 
 articles table. But this is a one time job. No need to run this module unless there is a massive change in the table size . Everytime this module will take 
 entire table data for training so use it effectively.
-Steps included in the trainig model
-    * Text Preprocessing (Stop Words Removal,Lemmatization)
-    * Document-Word matrix Creation (CountVectorizer)
-    * Grid Search
-    * LDA
+Steps included in the trainig model.
+
+    * Text Preprocessing (Stop Words Removal,Lemmatization) *
+    * Document-Word matrix Creation (CountVectorizer)	*
+    * Grid Search *
+    * LDA *
+	
 This is a one time job. After successful execution of this module we can see 4 files in models folder and extracted topics in the Topics table . In this mongodb 
 table we can edit the Topic name .Please do not make any changes in the Tokens column.
 lda_model.pkl file is the main module for extracting topics. All other files are intermediate outputs we can use it if required .For ex if you need preprocessed
