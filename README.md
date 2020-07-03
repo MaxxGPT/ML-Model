@@ -18,16 +18,16 @@ Steps included in the training model.
 	
 This is a one time job. After successful execution of this module we can see 4 files in models folder and extracted topics in the Topics table . In this mongodb 
 table we can edit the Topic name .Please do not make any changes in the Tokens column.
-lda_model.pkl file is the main module for extracting topics. All other files are intermediate outputs and we can use it if required .For ex if you need preprocessed
+lda_model.pkl file is the core model for extracting topics. All other files are intermediate outputs and we can use it if required .For ex if you need preprocessed
 row data take preprocessed_data.pkl and load it using pickles library. Document-Word matrix is also avalible in tf_model.pkl file. All training execution details will be
-avalible in train_summary table.
+avalible in train_summary table. See the deployment_instructions.doc file for more details.
 
 ### python train.py ###
 
 ## Visualisation ##
 
 This module will generate html output of the extracted topics in the report folder. This html output is interactive and it will give quick summary of the model . 
-After every successful training we need to run this module for checking the ouput of the model . 
+After every successful training we need to run this module for checking the ouput of the model . See the deployment_instructions.doc file for more details.
 
 ### python report.py ###
 
@@ -35,7 +35,7 @@ After every successful training we need to run this module for checking the oupu
 
 This module scans each record in the article table and find the associated Topic,Topic contribution percentage and NER attributes and save back to the same table
 as seperate columns.First time it will take some time for processing the entire dataset. Then it will take only latest records . Last processed record and date 
-saved in a sepearte table called prediction_summary.
+saved in a sepearte table called prediction_summary. See the deployment_instructions.doc file for more details.
 
 ### python predict.py ###
 
