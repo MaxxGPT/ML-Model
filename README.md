@@ -1,2 +1,1 @@
-# README #
-Topic Extraction Machine Learning Model
+# Topic Extraction Machine Learning Model #
