@@ -94,14 +94,14 @@ pipeline {
             				string(credentialsId: ENVAWSREGISTRYURL, variable: 'AWS_REGISTRY_URL'),
             				string(credentialsId: 'AWS_DEFAULT_REGION', variable: 'AWS_DEFAULT_REGION'),
             				string(credentialsId: 'AWS_ROLE_NAME', variable: 'AWS_ROLE_NAME'),
-            				string(credentialsId: 'ENV_DB_PASSWORD', variable: 'ENV_DB_PASSWORD'),
-            				string(credentialsId: 'ENV_DB_HOST', variable: 'ENV_DB_HOST'),
-            				string(credentialsId: 'ENV_DB_PORT', variable: 'ENV_DB_PORT'),
-            				string(credentialsId: 'ENV_DB_NAME', variable: 'ENV_DB_NAME'),
-            				string(credentialsId: 'ENV_SOURCE_TABLE', variable: 'ENV_SOURCE_TABLE'),
-            				string(credentialsId: 'ENV_NER_ENTITIES', variable: 'ENV_NER_ENTITIES'),
-            				string(credentialsId: 'ENV_LDA_FEATURES', variable: 'ENV_LDA_FEATURES'),
-            				string(credentialsId: 'ENV_LDA_NO_TOP_WORDS', variable: 'ENV_LDA_NO_TOP_WORDS')
+            				string(credentialsId: ENV_DB_PASSWORD, variable: 'ENV_DB_PASSWORD'),
+            				string(credentialsId: ENV_DB_HOST, variable: 'ENV_DB_HOST'),
+            				string(credentialsId: ENV_DB_PORT, variable: 'ENV_DB_PORT'),
+            				string(credentialsId: ENV_DB_NAME, variable: 'ENV_DB_NAME'),
+            				string(credentialsId: ENV_SOURCE_TABLE, variable: 'ENV_SOURCE_TABLE'),
+            				string(credentialsId: ENV_NER_ENTITIES, variable: 'ENV_NER_ENTITIES'),
+            				string(credentialsId: ENV_LDA_FEATURES, variable: 'ENV_LDA_FEATURES'),
+            				string(credentialsId: ENV_LDA_NO_TOP_WORDS, variable: 'ENV_LDA_NO_TOP_WORDS')
             				            				])
 	    					{
 			        		sh '''
