@@ -18,21 +18,21 @@ pipeline {
 			    ENV_LDA_NO_TOP_WORDS = "${BRANCH_DEPLOY}-LDA_NO_TOP_WORDS"
     			}
 		  	stages {
-		        stage('Check') {
-		        		when {
-			            	branch 'dev' 
-			        	}
-		            steps {
+		        // stage('Check') {
+		        // 		when {
+			       //      	branch 'dev' 
+			       //  	}
+		        //     steps {
 
-		                script {
-		                    commitMsg = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
-		                    if (!(commitMsg.contains(DEV_COMMIT_MSG))) {
-		                            env.SKIP_BUILD = 'yes'
-		                            error('no manual run skipping!')
-		                    }
-		                }
-		            }
-		        }
+		        //         script {
+		        //             commitMsg = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
+		        //             if (!(commitMsg.contains(DEV_COMMIT_MSG))) {
+		        //                     env.SKIP_BUILD = 'yes'
+		        //                     error('no manual run skipping!')
+		        //             }
+		        //         }
+		        //     }
+		        // }
 		    	stage('build docker image') {
 		    		when {
 		            	anyOf { branch 'dev'; branch 'stage'; branch 'prod'; } 
