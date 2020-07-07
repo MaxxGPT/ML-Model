@@ -1,2 +1,2 @@
 #!/bin/bash 
-python train.py && python predict.py
+python predict.py

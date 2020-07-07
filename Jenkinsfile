@@ -7,6 +7,7 @@ pipeline {
     			ENV_CLUSTER_NAME = "ml-${BRANCH_DEPLOY}"
     			ML_TASKDEF_NAME = "ml-${BRANCH_DEPLOY}"
     			DEV_COMMIT_MSG = "#manualrun"
+    			DEV_COMMIT_TRAIN_MSG = "#train"
 			    ENV_DB_USERNAME = "${BRANCH_DEPLOY}-DB_USERNAME"
 			    ENV_DB_PASSWORD = "${BRANCH_DEPLOY}-DB_PASSWORD"
 			    ENV_DB_HOST = "${BRANCH_DEPLOY}-DB_HOST"
@@ -18,24 +19,42 @@ pipeline {
 			    ENV_LDA_NO_TOP_WORDS = "${BRANCH_DEPLOY}-LDA_NO_TOP_WORDS"
     			}
 		  	stages {
-		        // stage('Check') {
-		        // 		when {
-			       //      	branch 'dev' 
-			       //  	}
-		        //     steps {
+		        stage('Check') {
+		        		when {
+			            	branch 'dev' 
+			        	}
+		            steps {
 
-		        //         script {
-		        //             commitMsg = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
-		        //             if (!(commitMsg.contains(DEV_COMMIT_MSG))) {
-		        //                     env.SKIP_BUILD = 'yes'
-		        //                     error('no manual run skipping!')
-		        //             }
-		        //         }
-		        //     }
-		        // }
+		                script {
+		                    commitMsg = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
+		                    if (!(commitMsg.contains(DEV_COMMIT_MSG))) {
+		                            env.SKIP_BUILD = 'yes'
+		                            error('no manual run skipping!')
+		                    }
+		                }
+		            }
+		        }
+		        stage('Check train dev and prod') {
+		        		when {
+			            	anyOf { branch 'dev'; branch 'prod'; }  
+			        	}
+		            steps {
+
+		                script {
+		                    commitMsg = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
+		                    if (commitMsg.contains(DEV_COMMIT_TRAIN_MSG)) {
+		                    	sh '''
+   									set +x
+									echo "found train msg..!"
+									mv entrypoint-train.sh entrypoint.sh
+								'''
+		                    }
+		                }
+		            }
+		        }
 		    	stage('build docker image') {
 		    		when {
-		            	anyOf { branch 'dev'; branch 'stage'; branch 'prod'; } 
+		            	anyOf { branch 'dev'; branch 'prod'; } 
 		        	}
 		      	steps {
 		   	 		script {
@@ -56,7 +75,7 @@ pipeline {
 				}
 				stage('publish docker image'){
 					when {
-		            	anyOf { branch 'dev'; branch 'stage'; branch 'prod'; } 
+		            	anyOf { branch 'dev'; branch 'prod'; } 
 		        	}
 					steps {
 						script {
@@ -110,7 +129,7 @@ pipeline {
 			        			export AWS_SECURITY_TOKEN=`sed -n '3p' awscre`
 			        			aws sts get-caller-identity 
 								sha_tag="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${AWS_REGISTRY_URL}:${BRANCH_DEPLOY}-${GIT_COMMIT}"
-			    				sed -e "s;IMAGE_NAME;\$sha_tag;g" taskdef.json > taskdef_0.json
+			    				sed -e "s;IMAGE_NAME;\$sha_tag;g" taskdef-dev.json > taskdef_0.json
 			    				sed -ie "s;AWS_DEFAULT_REGION;\$AWS_DEFAULT_REGION;g" taskdef_0.json
 			    				sed -ie "s;ENV_DB_USERNAME;\$ENV_DB_USERNAME;g" taskdef_0.json
 								sed -ie "s;ENV_DB_PASSWORD;\$ENV_DB_PASSWORD;g" taskdef_0.json
