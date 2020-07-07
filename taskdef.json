@@ -12,6 +12,14 @@
             "size": "10"
           }
         }
+      },
+      {
+        "name": "ml-prod-report",
+        "dockerVolumeConfiguration": {
+            "autoprovision": false,
+            "scope": "shared",
+            "driver": "rexray/s3fs"
+        }
       }
     ],
     "containerDefinitions": [
@@ -24,6 +32,10 @@
               {
                 "containerPath": "/usr/src/app/model",
                 "sourceVolume": "model-data"
+              },
+              {
+                "containerPath": "/usr/src/app/report",
+                "sourceVolume": "ml-prod-report"
               }
             ],
             "essential": true,
