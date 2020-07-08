@@ -45,7 +45,7 @@ pipeline {
 		                    if (commitMsg.contains(DEV_COMMIT_TRAIN_MSG)) {
 		                    	sh '''
    									set +x
-									echo "found train msg..!"
+									echo "found train msg..! updating entrypoint.sh with train and report command"
 									mv entrypoint-train.sh entrypoint.sh
 								'''
 		                    }
