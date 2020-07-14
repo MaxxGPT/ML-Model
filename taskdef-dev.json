@@ -14,7 +14,7 @@
         }
       },
       {
-        "name": "ml-prod-report",
+        "name": "ml-dev-report",
         "dockerVolumeConfiguration": {
             "autoprovision": false,
             "scope": "shared",
@@ -35,7 +35,7 @@
               },
               {
                 "containerPath": "/usr/src/app/report",
-                "sourceVolume": "ml-prod-report"
+                "sourceVolume": "ml-dev-report"
               }
             ],
             "essential": true,
