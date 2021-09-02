@@ -1,4 +1,6 @@
 import re,nltk
+import spacy
+import en_core_web_sm
 
 from nltk.stem.porter import PorterStemmer
 from nltk.corpus import stopwords,wordnet
@@ -38,6 +40,10 @@ class Preprocessor():
                 self.db_connection=True
             else:
                 self.logger.info("DB Connection Failed...")
+            self.nlp = en_core_web_sm.load()
+            self.remove_curly_bracket_code_pattern = re.compile(r'\{(.*?)\}')
+            self.remove_url_pattern = re.compile(r'https?://\S+|www\.\S+')
+            self.remove_tags_pattern = re.compile(r'(?:(?:\.vjs-|vjs-spinner|\.video-|\.ima-|\.bumpable-|video::-|@-|\*:)\S+)|(?:\bli|fff|div|body|ul\b)')
         except Exception as e:
             self.logger.error(e)
 
@@ -45,17 +51,15 @@ class Preprocessor():
         if(self.counter==6):
             total_records=self.db.get_table_count(self.table_name)
             self.logger.info("Total Table Size..."+str(total_records))
-            #total_records=100
+            # total_records=5000
             table_data=self.db.get_data(self.table_name,0,total_records)
             dataset=[]
             self.logger.info("Data Processing Started...")
             bar = Bar('Processing', max=total_records)
             for row in table_data:
                 try:
-                    data=row["summarization"]
-                    if(len(data)==0):
-                        data=row["description"]
-                    if(data is not None):    
+                    data = row.get("content")
+                    if (data is not None):
                         dataset.append(self.lemmatize_sentence(data))
                 except Exception as e:
                     self.logger.error(e)
@@ -74,19 +78,37 @@ class Preprocessor():
         logger = logging.getLogger('preprocess')
         logger.setLevel(logging.INFO)
         return logger
-    
+
+    # def lemmatize_sentence(self,sentence):
+    #     nltk_tagged = nltk.pos_tag(nltk.word_tokenize(sentence))
+    #     wordnet_tagged = map(lambda x: (x[0], self.find_wordnet_tag(x[1])), nltk_tagged)
+    #     lemmatized_sentence = []
+    #     for word, tag in wordnet_tagged:
+    #         if word not in self.stop_words:
+    #             if tag is None:
+    #                 lemmatized_sentence.append(word)
+    #             else:
+    #                 lemmatized_sentence.append(self.lemmatizer.lemmatize(word, tag))
+    #     return " ".join(lemmatized_sentence)
+
     def lemmatize_sentence(self,sentence):
-        nltk_tagged = nltk.pos_tag(nltk.word_tokenize(sentence))  
-        wordnet_tagged = map(lambda x: (x[0], self.find_wordnet_tag(x[1])), nltk_tagged)
-        lemmatized_sentence = []
-        for word, tag in wordnet_tagged:
-            if word not in self.stop_words:
-                if tag is None:
-                    lemmatized_sentence.append(word)
-                else:        
-                    lemmatized_sentence.append(self.lemmatizer.lemmatize(word, tag))
-        return " ".join(lemmatized_sentence)
-    
+        sentence = sentence.replace('@font-face', '').replace('@keyframes', '')
+        try:
+            # Remove text within curly brackets
+            sentence = self.remove_curly_bracket_code_pattern.sub("", sentence)
+            # Remove urls
+            sentence = self.remove_url_pattern.sub("", sentence)
+            # Remove .vjs tags
+            sentence = self.remove_tags_pattern.sub("", sentence)
+        except Exception as e:
+            self.logger.error(e)
+
+        lemmatized_tokens = []
+        for token in self.nlp(sentence):
+            if not token.is_stop and not token.is_punct and not token.is_digit:
+                lemmatized_tokens.append(token.lemma_.lower())
+        return " ".join(lemmatized_tokens)
+
     # function to check nltk tag to wordnet tag
     def find_wordnet_tag(self,nltk_tag):
         if nltk_tag.startswith('J'):
@@ -97,5 +119,5 @@ class Preprocessor():
             return wordnet.NOUN
         elif nltk_tag.startswith('R'):
             return wordnet.ADV
-        else:          
+        else:
             return None

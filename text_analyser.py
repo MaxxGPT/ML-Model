@@ -31,12 +31,12 @@ class TextAnalyser:
             self.logger.info("Topic Prediction Module init...")
 
             self.summary_table_name="prediction_summary"
-        
-            # Load the TF model 
+
+            # Load the TF model
             filename = 'model/tf_model.pkl'
             self.tf=pickle.load(open(filename, 'rb'))
 
-            # Load the TF Vectoriser 
+            # Load the TF Vectoriser
             filename = 'model/tf_vect_model.pkl'
             self.tf_vectorizer=pickle.load(open(filename, 'rb'))
 
@@ -92,7 +92,7 @@ class TextAnalyser:
             self.logger.info("Total Table Size..."+str(total_records))
             last_processed_row=self.getlastprocessed_record()
             self.logger.info("Last processed..."+str(last_processed_row))
-            #total_records=100
+            # total_records=10000
             table_data=self.db.get_data(self.preprocessor.table_name,last_processed_row,total_records)
             dataset=[]
             self.logger.info("Topic Prediction Started...")
@@ -100,11 +100,9 @@ class TextAnalyser:
             for row in table_data:
                 try:
                     _id=row["_id"]
-                    data=row["summarization"]
-                    if(len(data)==0):
-                        data=row["description"]
+                    data = row.get("content", "")
+                    entity_dict=self.extract_entities(data)
                     processed_text=self.preprocessor.lemmatize_sentence(data)
-                    entity_dict=self.extract_entities(processed_text)
                     for key in entity_dict:
                         row[key]=entity_dict[key]
                     topic,topic_contribution,topic_keywords=self.predict_topic(processed_text)
@@ -127,7 +125,7 @@ class TextAnalyser:
                 self.logger.error(e)
         else:
             print("ML Models missing!!! Please run the training module.")
-            self.logger.info("ML Models missing!!! Please run the training module.") 
+            self.logger.info("ML Models missing!!! Please run the training module.")
 
     def predict_topic(self,processed_text):
         topic=""
@@ -174,4 +172,3 @@ class TextAnalyser:
                     self.logger.error(e)
         except Exception as e:
             self.logger.error(e)
-        

@@ -13,7 +13,8 @@ import time
 class GridSearch:
     def __init__(self,tf):
         self.tf=tf
-        self.search_components=[2, 3, 4]
+        self.search_components=[2, 3, 4, 5, 6]
+        self.search_learning_decay=[0.6, 0.8]
         self.logger=self.init_logger()
         self.logger.info("init...")
     

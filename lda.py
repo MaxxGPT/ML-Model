@@ -100,7 +100,7 @@ class Lda:
             data_rows=[]
             for topic_weights in self.lda.components_:
                 top_keyword_locs = (-topic_weights).argsort()[:self.n_words]
-                data_dict={"Topic ":"Topic "+str(count),"Tokens":keywords.take(top_keyword_locs).tolist()}
+                data_dict={"Topic":"Topic "+str(count),"Tokens":keywords.take(top_keyword_locs).tolist()}
                 data_rows.append(data_dict)
                 count+=1
             self.logger.info("Topics Extracted From Model ")
