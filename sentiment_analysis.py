@@ -3,8 +3,6 @@ import logging
 import time
 from time import perf_counter
 
-from flair.data import Sentence
-from flair.models import TextClassifier
 from progress.bar import Bar
 from transformers import pipeline
 
@@ -23,13 +21,8 @@ class SentimentAnalysis:
             self.table_name = (config.get('DATABASE', 'TABLE'))
             self.summary_table_name = "sentiment_analysis_summary"
 
-            # For auto download, use below line
-            # self.sentiment_analysis = pipeline("sentiment-analysis", model = "ProsusAI/finbert")
             self.sentiment_analysis = pipeline("sentiment-analysis", model = "model/sentiment-analysis")
             self.logger.info("Loaded sentiment analysis model...")
-
-            # self.flair_sentiment_analysis = TextClassifier.load('en-sentiment')
-            # self.logger.info("Loaded Flair sentiment analysis model...")
 
         except Exception as e:
             self.logger.error(e)
@@ -57,7 +50,7 @@ class SentimentAnalysis:
                     _id = row["_id"]
 
                     # Determine sentiment from description
-                    # start = perf_counter()
+                    start = perf_counter()
                     description_sentiment = None
                     description_sentiment_score = 0
                     data = self.get_valid_data(row)
@@ -67,7 +60,7 @@ class SentimentAnalysis:
                         description_sentiment_score = result[0].get('score')
                     sentiment_dict['sentiment'] = description_sentiment
                     sentiment_dict['sentiment_score'] = description_sentiment_score
-                    # sentiment_dict['sentiment_time'] = perf_counter() - start
+                    sentiment_dict['sentiment_time'] = perf_counter() - start
                     self.update_label_count_dict(str(description_sentiment), label_count_dict)
 
                     self.db.update_data(self.table_name, _id, sentiment_dict)
