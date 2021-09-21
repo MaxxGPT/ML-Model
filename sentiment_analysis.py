@@ -1,10 +1,8 @@
 import datetime
 import logging
-import time
+import time, os
 from time import perf_counter
 
-from flair.data import Sentence
-from flair.models import TextClassifier
 from progress.bar import Bar
 from transformers import pipeline
 
@@ -23,13 +21,8 @@ class SentimentAnalysis:
             self.table_name = (config.get('DATABASE', 'TABLE'))
             self.summary_table_name = "sentiment_analysis_summary"
 
-            # For auto download, use below line
-            # self.sentiment_analysis = pipeline("sentiment-analysis", model = "ProsusAI/finbert")
-            self.sentiment_analysis = pipeline("sentiment-analysis", model = "model/sentiment-analysis")
+            self.sentiment_analysis = pipeline("sentiment-analysis", model = "ProsusAI/finbert")
             self.logger.info("Loaded sentiment analysis model...")
-
-            # self.flair_sentiment_analysis = TextClassifier.load('en-sentiment')
-            # self.logger.info("Loaded Flair sentiment analysis model...")
 
         except Exception as e:
             self.logger.error(e)
