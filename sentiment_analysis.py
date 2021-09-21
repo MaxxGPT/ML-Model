@@ -1,6 +1,6 @@
 import datetime
 import logging
-import time
+import time, os
 from time import perf_counter
 
 from progress.bar import Bar
@@ -21,7 +21,7 @@ class SentimentAnalysis:
             self.table_name = (config.get('DATABASE', 'TABLE'))
             self.summary_table_name = "sentiment_analysis_summary"
 
-            self.sentiment_analysis = pipeline("sentiment-analysis", model = "model/sentiment-analysis")
+            self.sentiment_analysis = pipeline("sentiment-analysis", model = "ProsusAI/finbert")
             self.logger.info("Loaded sentiment analysis model...")
 
         except Exception as e:
