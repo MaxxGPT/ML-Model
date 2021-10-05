@@ -41,9 +41,16 @@ class Preprocessor():
             else:
                 self.logger.info("DB Connection Failed...")
             self.nlp = en_core_web_sm.load()
-            self.remove_curly_bracket_code_pattern = re.compile(r'\{(.*?)\}')
-            self.remove_url_pattern = re.compile(r'https?://\S+|www\.\S+')
+            self.relevant_words = ['marijuana', 'cannabis', 'thc', 'cbd', 'hemp']
+            self.relevant_words_pattern = re.compile("|".join(
+                map(lambda x: r'(?<!\w)' + re.escape(x) + r'(?!\w)',
+                    self.relevant_words)), flags = re.I)
+            self.remove_curly_bracket_code_pattern = re.compile(r'\{(?:.*?)\}|<(?:.*?)>')
+            self.remove_url_pattern = re.compile(r'https?://\S+|www\.\S+|\S+\.com')
             self.remove_tags_pattern = re.compile(r'(?:(?:\.vjs-|vjs-spinner|\.video-|\.ima-|\.bumpable-|video::-|@-|\*:)\S+)|(?:\bli|fff|div|body|ul\b)')
+            self.remove_social_media_pattern = re.compile(
+                r'(?:more\s+)?click\s+to\s+share\s+(?:to|on)\s+(facebook|twitter|linkedin|messenger|whatsapp|pinterest|tumblr|pocket|copy\s+url)|\(opens\s+in\s+new\s+window\)|click\s+to\s+(?:email\s+this\s+to\s+a\s+friend|print)|image\s+courtesy\s+of\s+[A-Za-z0-9-_]+',
+                flags = re.I)
         except Exception as e:
             self.logger.error(e)
 
@@ -54,12 +61,17 @@ class Preprocessor():
             # total_records=5000
             table_data=self.db.get_data(self.table_name,0,total_records)
             dataset=[]
+            urls = []
             self.logger.info("Data Processing Started...")
             bar = Bar('Processing', max=total_records)
             for row in table_data:
                 try:
+                    url = row.get("url")
+                    if url:
+                        urls.append(url)
                     data = row.get("content")
-                    if (data is not None):
+                    has_relevant_word = self.relevant_words_pattern.search(data)
+                    if (data is not None) and (url not in urls) and has_relevant_word:
                         dataset.append(self.lemmatize_sentence(data))
                 except Exception as e:
                     self.logger.error(e)
@@ -100,6 +112,8 @@ class Preprocessor():
             sentence = self.remove_url_pattern.sub("", sentence)
             # Remove .vjs tags
             sentence = self.remove_tags_pattern.sub("", sentence)
+            # Remove social media sharing options
+            sentence = self.remove_social_media_pattern.sub("", sentence)
         except Exception as e:
             self.logger.error(e)
 
