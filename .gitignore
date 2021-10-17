@@ -1,0 +1,4 @@
+.vscode
+.pytest
+__pycache__
+*.pyc
